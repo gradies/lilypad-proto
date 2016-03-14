@@ -92,17 +92,17 @@
   (:id (first (sql/insert! DB TABLE_KEY (update form-data :prereq vec)))))
 
 (defn edit-node [id form-data]
-  (sql/update! DB TABLE_KEY form-data ["id = ?" (read-string id)]))
+  (sql/update! DB TABLE_KEY form-data [(str "id = " id)]))
 
 (defn delete-node [id] ; TODO: confirmation
-  (sql/delete! DB TABLE_KEY ["id = ?" (read-string id)])
+  (sql/delete! DB TABLE_KEY [(str "id = " id)])
   ; Remove deleted node from all other nodes' prereqs.
-  (defn remove-val-from-vec [value vect]
-    (vec (remove #{value} vect)))
-  (defn remove-prereq [prereq row]
-    (edit-node (:id row) (update row :prereq (partial remove-val-from-vec id))))
   (def affected-rows (sql/query DB (str "select * from " TABLE " where prereq @> '{" id "}'::smallint[]")))
-  (map (partial remove-prereq id) affected-rows))
+  (defn remove-val-from-vec [value vect]
+    (vec (filter #(not= (read-string value) %) vect))) ; Unclear on type conv
+  (defn remove-prereq [prereq row]
+    (edit-node (:id row) (update row :prereq (partial remove-val-from-vec prereq))))
+  (doall (map (partial remove-prereq id) affected-rows)))
 
 ;;; FUNCTIONS THAT GENERATE WEB PAGES
 (defn main-page []
