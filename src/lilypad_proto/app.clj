@@ -83,6 +83,7 @@
 (defn html-redir [target]
   [:head [:meta {:http-equiv "refresh" :content (str "0; url=/" target)}]])
 
+
 ;;; HIGH-LEVEL FUNCTIONS
 (defn add-node [form-data]
   (:id (first (sql/insert! DB TABLE_KEY (update form-data :prereq vec)))))
@@ -102,10 +103,11 @@
                (update row :prereq (partial remove-val-from-vec prereq))))
   (doall (map (partial remove-prereq id) affected-rows)))
 
+
 ;;; FUNCTIONS THAT GENERATE COMPLETE WEB PAGES
 (defn main-page []
   (page/html5 (page-head "Home")
-    [:h2 "LILYPAD"]
+    [:h2 "LILYPAD DERP"]
     (html-button-link "New Node" "add")
     [:p] (map row-to-html-link (get-all-rows))))
 
@@ -145,6 +147,7 @@
     "add"    (page/html5 (html-redir (add-node form-data)))
     "edit"   (do (edit-node id form-data) (page/html5 (html-redir id)))
     "delete" (do (delete-node id) (page/html5 (html-redir "")))))
+
 
 (cc/defroutes routes
   (cc/GET  "/"        []                (main-page))

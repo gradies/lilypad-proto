@@ -14,12 +14,12 @@ Database info
 Table name: nodes
 
 Fields:
-* id, smallserial
-* title, text
-* prereq, smallint[]
-* descr, text
-* example, text
-* comment, text
+* **id, smallserial** Internal database ID number, also used for node URLs
+* **title, text** Node name
+* **prereq, smallint[]** Prerequisites, stored as an array of IDs
+* **descr, text** Node description
+* **example, text** Example(s) of how a node's knowledge can be applied
+* **comment, text** Internal comments for our benefit during development
 
 Generate an empty nodes table in:
 * the Leiningen REPL
@@ -30,9 +30,9 @@ Generate an empty nodes table in:
 TODO 
 ----
 
-1.  *Visualize the knowledge tree*.  I think Garrett already has something in mind for this.
-2.  *Sort the text-based view of the tree*.  Alphabetically would be a good start.  We should think about indenting too.
-3.  *Nest prerequisites*.  Adding a prereq should recursively add all the prereq's prereqs, too.
-4.  *Show postreqs*.  Users should see what they'll be able to learn next.
-5.  *Confirm node deletion*.  A popup window will probably require clojurescript, which I haven't looked into yet.
-6.  *Document code*?  ;)
+1.  **Visualize the knowledge tree**.  I think Garrett already has something in mind for this.
+2.  **Sort the text-based view of the tree**.  Alphabetically would be a good start.  We should think about indenting too.
+3.  **Nest prerequisites**.  Adding a prereq should recursively add all the prereq's prereqs, too.
+4.  **Show postreqs**.  Users should see what they'll be able to learn next.
+5.  **Confirm node deletion**.  A popup window will probably require clojurescript, which I haven't looked into yet.
+6.  **Document code**?  ;)
