@@ -107,7 +107,7 @@
 ;;; FUNCTIONS THAT GENERATE COMPLETE WEB PAGES
 (defn main-page []
   (page/html5 (page-head "Home")
-    [:h2 "LILYPAD DERP"]
+    [:h2 "LILYPAD"]
     (html-button-link "New Node" "add")
     [:p] (map row-to-html-link (get-all-rows))))
 
