@@ -3,11 +3,11 @@
 /classes
 /checkouts
 pom.xml
-*.jar
 *.class
+*.jar
+*.keystore
+.DS_Store
 .lein-deps-sum
 .lein-failures
 .lein-plugins
 .lein-repl-history
-*.keystore
-.DS_Store

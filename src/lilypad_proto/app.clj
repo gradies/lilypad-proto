@@ -1,11 +1,10 @@
-(ns lilypad-proto.app
-  (:require [ring.adapter.jetty :as jetty]
-            [compojure.core :as cc]
-            [compojure.handler :as handler]
-            [clojure.java.jdbc :as sql]
-            [hiccup.page :as page])
-  (:use     [clojure.string :only (split)])
-  (:gen-class))
+(ns lilypad-proto.app (:require [ring.adapter.jetty :as jetty]
+                                [compojure.core :as cc]
+                                [compojure.handler :as handler]
+                                [clojure.java.jdbc :as sql]
+                                [hiccup.page :as page])
+                      (:use     [clojure.string :only (split)])
+                      (:gen-class))
 
 (def DB (or (System/getenv "DATABASE_URL")
             "postgresql://localhost:5432/lilypad-proto"))
@@ -17,8 +16,8 @@
   (result-set-read-column [pgobj metadata i] ; Auto-convert db out to vector.
     (vec (.getArray pgobj))))                ;
 
-(extend-protocol sql/ISQLParameter           ; SO #22959804
-  clojure.lang.IPersistentVector             ; Auto-convert db in to array.
+(extend-protocol sql/ISQLParameter ; SO #22959804: Auto-convert db in to array.
+  clojure.lang.IPersistentVector
   (set-parameter [v ^java.sql.PreparedStatement stmt ^long i]
     (let [conn (.getConnection stmt)
           meta (.getParameterMetaData stmt)
@@ -29,19 +28,16 @@
         (.setObject stmt i v)))))
 
 ;;; LOW-LEVEL FUNCTIONS
-(defn in?  [coll elm]  (some #(= elm %) coll)) ; SO #3249334
+(defn in? [coll elm] (some #(= elm %) coll)) ; SO #3249334
 
-(defn page-head [title]
-  [:head [:title (str title " - Lilypad")]])
+(defn page-head [title] [:head [:title (str title " - Lilypad")]])
 
-(defn get-all-rows []
-  (sql/query DB (str "select * from " TABLE)))
+(defn get-all-rows [] (sql/query DB (str "select * from " TABLE)))
 
 (defn get-row [id]
   (first (sql/query DB (str "select * from " TABLE " where id=" id))))
 
-(defn row-to-html-link [row]
-  (seq [[:a {:href (:id row)} (:title row)] [:br]]))
+(defn row-to-html-link [row] (seq [[:a {:href (:id row)} (:title row)] [:br]]))
 
 (defn newline-to-br [text]
   (clojure.string/replace text #"\r\n|\n|\r" "<br />\n"))
@@ -96,32 +92,31 @@
 
 (defn delete-node [id] ; TODO: confirmation
   (sql/delete! DB TABLE_KEY [(str "id = " id)])
-  ; Remove deleted node from all other nodes' prereqs.
-  (def affected-rows (sql/query DB (str "select * from " TABLE " where prereq @> '{" id "}'::smallint[]")))
+  ; Remove deleted node from other nodes' prereqs.  Doall prevents laziness.
+  (def affected-rows (sql/query DB
+    (str "select * from " TABLE " where prereq @> '{" id "}'::smallint[]")))
   (defn remove-val-from-vec [value vect]
     (vec (filter #(not= (read-string value) %) vect))) ; Unclear on type conv
   (defn remove-prereq [prereq row]
-    (edit-node (:id row) (update row :prereq (partial remove-val-from-vec prereq))))
+    (edit-node (:id row)
+               (update row :prereq (partial remove-val-from-vec prereq))))
   (doall (map (partial remove-prereq id) affected-rows)))
 
-;;; FUNCTIONS THAT GENERATE WEB PAGES
+;;; FUNCTIONS THAT GENERATE COMPLETE WEB PAGES
 (defn main-page []
-  (page/html5
-    (page-head "Home")
+  (page/html5 (page-head "Home")
     [:h2 "LILYPAD"]
     (html-button-link "New Node" "add")
     [:p] (map row-to-html-link (get-all-rows))))
 
 (defn add-node-page []
-  (page/html5
-    (page-head "New node")
+  (page/html5 (page-head "New node")
     [:h2 "NEW NODE"]
     (html-button-link "Cancel" "")
     [:p] (html-form "add")))
 
 (defn edit-node-page [id]
-  (page/html5
-    (page-head "Edit node")
+  (page/html5 (page-head "Edit node")
     [:h2 "EDIT NODE"]
     [:table [:tr [:td (html-button-link "Cancel" "")] 
                  [:td (html-button-hidden-form "Delete" "process"
@@ -130,8 +125,7 @@
 
 (defn node-page [id] ; TODO: add postreqs to bottom
   (def row (get-row id))
-  (page/html5
-    (page-head (:title row))
+  (page/html5 (page-head (:title row))
     [:h2 (clojure.string/upper-case (:title row))]
     [:table [:tr [:td (html-button-link "Home" "")] 
                  [:td (html-button-hidden-form "Edit" "edit" id)]]]
@@ -161,11 +155,4 @@
 
 (defn -main []
   (jetty/run-jetty (handler/site routes)
-    {:port (Integer. (or (System/getenv "PORT") "8080"))
-     :join? false}))
-
-; Generate the nodes table (in REPL).
-;(sql/db-do-commands DB (sql/create-table-ddl TABLE_KEY [:id :smallserial] [:title :text] [:prereq "smallint[]"] [:descr :text] [:example :text] [:comm :text]))
-
-; ... or in psql:
-;create table nodes (id smallserial, title text, prereq smallint[], descr text, example text, comm text)
+    {:port (Integer. (or (System/getenv "PORT") "8080")) :join? false}))
