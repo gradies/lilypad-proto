@@ -21,8 +21,8 @@ Fields:
 * **example, text** Example(s) of how a node's knowledge can be applied
 * **comm, text** Internal comments for our benefit during development
 
-Generate an empty nodes table in:
-* the Leiningen REPL
+Generate an empty nodes table:
+* in the Leiningen REPL
   `(sql/db-do-commands DB (sql/create-table-ddl TABLE_KEY [:id :smallserial] [:title :text] [:prereq "smallint[]"] [:descr :text] [:example :text] [:comm :text]))`
 * or in psql
   `create table nodes (id smallserial, title text, prereq smallint[], descr text, example text, comm text);`
