@@ -19,7 +19,7 @@ Fields:
 * **prereq, smallint[]** Prerequisites, stored as an array of IDs
 * **descr, text** Node description
 * **example, text** Example(s) of how a node's knowledge can be applied
-* **comment, text** Internal comments for our benefit during development
+* **comm, text** Internal comments for our benefit during development
 
 Generate an empty nodes table in:
 * the Leiningen REPL
