@@ -68,6 +68,8 @@
                                   (map :title all-rows) (:prereq row))]]
       [:tr [:td "Description"]
            [:td [:textarea {:name "descr"} (:descr row)]]]
+      [:tr [:td "Description2"]
+           [:td [:textarea {:name "descr"} (:descr row)]]]
       [:tr [:td "Examples"]
            [:td [:textarea {:name "example"} (:example row)]]]
       [:tr [:td "Comments"]
